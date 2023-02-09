@@ -3,10 +3,8 @@ import { Segment, Transcript, OpenAiDictionary } from "utils/transcription";
 import TranscriptView from "components/TranscriptView/TranscriptView";
 import { LoadingStatus } from "components/App/App";
 import { getClassNames } from "./AudioPlayer.classNames";
-import { createTheme, DefaultButton, HoverCard, HoverCardType, IHoverCard, IIconStyles, IPlainCardProps, IScrollablePaneStyles, ITheme, PrimaryButton, ScrollablePane, Separator, Stack, Sticky, StickyPositionType, TextField } from "@fluentui/react";
+import { createTheme, DefaultButton, IScrollablePaneStyles, ITheme, Separator, Stack} from "@fluentui/react";
 import { IStackTokens } from '@fluentui/react/lib/Stack';
-import { Text } from '@fluentui/react/lib/Text';
-import { useBoolean } from '@fluentui/react-hooks';
 import { mergeStyles } from '@fluentui/react/lib/Styling';
 import React from "react";
 import { getTheme, mergeStyleSets } from '@fluentui/react/lib/Styling';
@@ -167,20 +165,15 @@ function AudioPlayer({
 
   console.log("typeof", typeof(fullTranscriptObject.summary))
   console.log("my transcript", Object.keys(fullTranscriptObject).length !== 0, fullTranscriptObject)
-  // Object.keys(fullTranscriptObject).forEach(k => {
-  //   console.log(k, ':');
-  // });
+
 
   let oai;
   const style = {
-    //border: '1px solid',
     color: 'black',
   };
-  
-  // const relatedConvStyle = {
-  //   border: '1px solid',
-  //   color: 'black',
-  // };
+  const bulletStyle = {
+    color: 'black',
+  };
 
   let ner;
   let key_items;
@@ -193,11 +186,15 @@ function AudioPlayer({
   {
     //const loadMoreInfo = useBoolean(false);
 
-    ner = fullTranscriptObject.ner.map(str => <span style= {style}> {str} <br/></span>);
-    key_items = fullTranscriptObject.key_items.map(str => <span style= {style}> {str} <br/></span>);
-    topics = fullTranscriptObject.topic.map(str => <span style= {style}> {str} <br/></span>);
+    ner = fullTranscriptObject.ner.map(str => 
+    <span style= {style}> 
+      <b>{str.split(':')[0]}:</b> 
+      <span style={style}> {str.split(':')[1]}<br/></span> 
+    </span>);
+    
+    key_items = fullTranscriptObject.key_items.map(str => <span style= {bulletStyle}> <li>{str}</li></span>);
+    topics = fullTranscriptObject.topic.map(str => <span style= {bulletStyle}> <li>{str.replace('-','')} </li></span>);
     relatedConversations = fullTranscriptObject.related.map((convers, i) => (
-      //<div style= {relatedConvStyle}>
       <div className="relatedConv">
         <span><tr key={i}>
           <br/>
@@ -223,23 +220,22 @@ function AudioPlayer({
       </div>
 
   ))
-    //let relatedConversations = fullTranscriptObject.related.map(str => <span style= {style}> {str} <br/></span>);
 
     oai =<div className={'oaiinsightsRightPanel'}>
-            <h3 style={{textAlign: "left", color: '#264ebb'}}>Overall Sentiment:</h3>
+            <h3 style={{textAlign: "left", color: '#264ebb',marginBlockStart:'1em', marginBlockEnd:'0px'}}>Overall Sentiment:</h3>
             <div >
               {(() => {
                 if (fullTranscriptObject.sentiment === 'Positive') {
                   return (
-                    <h4 style={{ color: '#05b005'}}>{fullTranscriptObject.sentiment}</h4>
+                    <h4 style={{ color: '#05b005', marginBlockStart:'0px',marginBlockEnd:'0px'}}>{fullTranscriptObject.sentiment}</h4>
                   )
                 } else if (fullTranscriptObject.sentiment === 'Negative') {
                   return (
-                    <h4 style={{ color: "red"}}>{fullTranscriptObject.sentiment}</h4>
+                    <h4 style={{ color: "red", marginBlockEnd:'0px'}}>{fullTranscriptObject.sentiment}</h4>
                   )
                 } else {
                   return (
-                    <h4 style={{ color: "black"}}>{fullTranscriptObject.sentiment}</h4>
+                    <h4 style={{ color: "black", marginBlockEnd:'0px'}}>{fullTranscriptObject.sentiment}</h4>
                   )}
               })()}
             <Separator theme={theme}></Separator>
@@ -249,21 +245,14 @@ function AudioPlayer({
             <Separator theme={theme}></Separator>
 
             <h3 style={{textAlign: "left", color: '#264ebb'}}>Entities Recognized:</h3>
-            {/* {fullTranscriptObject.ner.join('\r\n')} */}
             {ner}
-            {/*fullTranscriptObject.ner*/}
             <Separator theme={theme}></Separator>
 
             <h3 style={{textAlign: "left", color: '#264ebb'}}>Key discussion topics:</h3>
-            {/* {fullTranscriptObject.topic.join('\r\n')} */}
-            {/*fullTranscriptObject.topic.map(str => <p>{str}</p>)*/}
-            {/*fullTranscriptObject.topic*/}
             {topics}
             <Separator theme={theme}></Separator>
 
             <h3 style={{textAlign: "left", color: '#264ebb'}}>Key Items:</h3>
-            {/*fullTranscriptObject.key_items.join(',')*/}
-            {/*fullTranscriptObject.key_items*/}
             {key_items}
             <Separator theme={theme}></Separator>
 
@@ -344,14 +333,9 @@ function AudioPlayer({
             <div className={'rightHandPanel'}>
               <Stack><h2 style={{textAlign: "center", color: '#264ebb', marginBlockStart: "0px", marginBlockEnd: "6px"}}>Top 5 most relevant<br/>conversations</h2></Stack>
               <Stack> <div className="relatedConv">{relatedConversations}</div></Stack> 
-              
             </div>
           </div>
-          
-        
         </Stack>
-      
-      
       </div>
   );
 }

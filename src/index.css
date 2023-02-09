@@ -77,10 +77,12 @@ code {
   background-color:#e6eaec;
   margin-left: 10px;
   margin-right: 10px;
-
 }
 
-
+h3{
+  margin-block-end: 0px;
+  margin-block-start: 5px;
+}
 
 .rightHandPanel{
   margin-top: 10px;
