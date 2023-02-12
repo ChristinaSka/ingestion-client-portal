@@ -76,56 +76,6 @@ function AudioPlayer({
   // Azure OpenAI 
   const [check, setCheck] = useState("");
 
-  const callOpenAI = async(prompt: string) => {
-
-    //const { config } = require('dotenv');
-    //config();
-    try{
-
-      const api_key = process.env.API_KEY;
-      const base_url =  process.env.AOAI_ENDPOINT;
-      const deployment_name = process.env.DEPLOYMENT_NAME;
-      const url = base_url + "/openai/deployments/" + deployment_name + "/completions?api-version=2022-12-01";
-      
-
-      const headers = {
-        "api-key": api_key,
-        "Content-Type": "application/json"
-      };
-
-      let output = '';
-      const response = fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": api_key as string,
-          Accept: "application/json",
-        },
-        body:    JSON.stringify(   {
-          "temperature": 0,
-          "max_tokens":600,
-          "prompt" : prompt
-          })
-        })
-        .then(function(response){ 
-          return response.json()})
-          .then(function(data)
-          {console.log(data);
-            // console.log("OpenAI Response", data);
-            console.log("OpneAI", data.choices[0].text);
-            setCheck(data.choices[0].text);
-          })
-        .catch((error) => {
-          //Promise.reject(error);
-          console.log(error)
-        });
-
-    } catch (e) {
-      console.error("Error calling OpenAI", e);
-    }
-
-  }
-    
   function handleChange(event : React.ChangeEvent<HTMLInputElement>) {
     console.log(event.target.value);
     setMessage(event.target.value);
@@ -136,16 +86,18 @@ function AudioPlayer({
   const [updated, setUpdated] = useState(message);
 
 
-  const handleClick = () => {
+  const handleClick = async () => {
     // "message" stores input field value
     setUpdated(message);
     console.log("Final Message", message);
 
     var prompt = "Please answer the question from the below text \n###" + fullTranscriptObject.conversation + "\n###\n" + message + "\nAnswer:";
+    prompt = encodeURIComponent(prompt);
 
-    var data = callOpenAI(prompt);
-    
+    const { text } = await( await fetch(`/api/QueryOpenAI?prompt=${prompt}`)).json();
 
+    setCheck(text)
+  
   };
 
   const stackTokens: IStackTokens = { childrenGap: 12 };
